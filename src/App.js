@@ -8,6 +8,7 @@ import {
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import InfoBox from "./InfoBox";
+import LineGraph from "./LineGraph";
 import Map from "./Map";
 import Table from "./Table";
 import { sortData } from "./util";
@@ -108,10 +109,8 @@ function App() {
           <h3>Live Cases by Country</h3>
           <Table countries={tableData} />
           <h3>Worldwide new cases</h3>
+          <LineGraph />
         </CardContent>
-
-        {/*Table*/}
-        {/*Graph*/}
       </Card>
     </div>
   );
