@@ -38,6 +38,7 @@ const options = {
           display: false,
         },
         ticks: {
+          // Include a dollar sign in the ticks
           callback: function (value, index, values) {
             return numeral(value).format("0a");
           },
@@ -47,43 +48,43 @@ const options = {
   },
 };
 
-function LineGraph({ casesType = "cases" }) {
+const buildChartData = (data, casesType) => {
+  let chartData = [];
+  let lastDataPoint;
+  for (let date in data.cases) {
+    if (lastDataPoint) {
+      let newDataPoint = {
+        x: date,
+        y: data[casesType][date] - lastDataPoint,
+      };
+      chartData.push(newDataPoint);
+    }
+    lastDataPoint = data[casesType][date];
+  }
+  return chartData;
+};
+
+function LineGraph({ casesType = "cases", ...props }) {
   const [data, setData] = useState({});
   //https://disease.sh/v3/covid-19/historical/all?lastdays=120
-  const buildChartData = (data, casesType) => {
-    const chartData = [];
-    let lastDataPoint;
-    for (let date in data.cases) {
-      if (lastDataPoint) {
-        const newDataPoint = {
-          x: date,
-          y: data[casesType][date] - lastDataPoint,
-        };
-        chartData.push(newDataPoint);
-      }
-      lastDataPoint = data[casesType][date];
-    }
-    return chartData;
-  };
-
-  console.log("DATA", data);
 
   useEffect(() => {
     const fetchData = async () => {
       await fetch("https://disease.sh/v3/covid-19/historical/all?lastdays=120")
-        .then((response) => response.json())
+        .then((response) => {
+          return response.json();
+        })
         .then((data) => {
-          const chartData = buildChartData(data, "cases");
+          let chartData = buildChartData(data, casesType);
           setData(chartData);
         });
     };
     fetchData();
-  }, []);
+  }, [casesType]);
 
   return (
-    <div className="lineGraph">
-      <h1>Im a graph</h1>
-      {data?.length > 0 && (
+    <div className={props.className}>
+      {data?.length > 0 && ( //at the beginning the data is not populated thats why we need protect against that
         <Line
           options={options}
           data={{
